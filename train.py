@@ -2,6 +2,7 @@ import torch
 import numpy as np
 
 from nn_base import BaseNN
+from ecnn import ECNN
 from data import get_dataset
 from util import L2_loss
 import argparse
@@ -18,6 +19,7 @@ def parse_args():
 	parser.add_argument('--num_steps', default=2000, type=int, help='number of steps')
 	parser.add_argument('--print_every', default=200, type=int, help='print every n steps')
 	parser.add_argument('--name', default='dynamics', type=str, help='output name')
+	parser.add_argument('--baseline', dest='baseline', action='store_true', help='run baseline or energy conserving')
 	parser.add_argument('--save_dir', default=FILE_DIR, type=str, help='dir to save the trained model')
 	return parser.parse_args()
 
@@ -27,8 +29,8 @@ def train(args):
 
 	output_dim = 2 
 	nn_model = BaseNN(args.input_dim, args.hidden_dim, output_dim)
-	optim = torch.optim.Adam(nn_model.parameters(), args.learn_rate, weight_decay=1e-4)
-
+	model = ECNN(args.input_dim, nn_model, args.baseline )
+	optim = torch.optim.Adam(model.parameters(), args.learn_rate, weight_decay=1e-4)
 	data = get_dataset(seed=args.seed)
 
 	uv = torch.tensor(data['uv'], requires_grad=True, dtype=torch.float32 )
@@ -39,12 +41,12 @@ def train(args):
 	stats = {'train_loss': [], 'test_loss': []}
 	for step in range(args.num_steps + 1):
 		# train step
-		duv_hat = nn_model.forward(uv)
+		duv_hat = model.time_derivative(uv)
 		loss = L2_loss(duv, duv_hat)
 		loss.backward(); optim.step(); optim.zero_grad();
 
 		# run test data
-		test_duv_hat = nn_model.forward(test_uv)
+		test_duv_hat = model.time_derivative(test_uv)
 		test_loss = L2_loss(test_duv, test_duv_hat)
 
 		# logging
@@ -53,15 +55,15 @@ def train(args):
 		if step % args.print_every == 0:
 			print("step {}, train_loss {:.4e}, test_loss {:.4e}".format(step, loss.item(), test_loss.item()))
 	
-	train_duv_hat = nn_model.forward(uv)
+	train_duv_hat = model.time_derivative(uv)
 	train_dist = (duv - train_duv_hat)**2
-	test_duv_hat = nn_model.forward(test_uv)
+	test_duv_hat = model.time_derivative(test_uv)
 	test_dist = (test_duv - test_duv_hat)**2
 	print('Final train loss {:.4e} +/- {:.4e}\nFinal test loss {:.4e} +/- {:.4e}'
 		.format(train_dist.mean().item(), train_dist.std().item()/np.sqrt(train_dist.shape[0]),
 			test_dist.mean().item(), test_dist.std().item()/np.sqrt(test_dist.shape[0])))
 
-	return nn_model, stats
+	return model, stats
 
 if __name__ == "__main__":
 	args = parse_args()
@@ -69,5 +71,6 @@ if __name__ == "__main__":
 
 	# save
 	os.makedirs(args.save_dir) if not os.path.exists(args.save_dir) else None
-	path = '{}/{}.tar'.format(args.save_dir, args.name)
+	naming = '-baseline' if args.baseline else ''
+	path = '{}/{}{}.tar'.format(args.save_dir, args.name, naming)
 	torch.save(model.state_dict(), path)
