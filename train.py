@@ -4,8 +4,10 @@ import numpy as np
 from nn_base import BaseNN
 from data import get_dataset
 from util import L2_loss
-
 import argparse
+import os 
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def parse_args():
 	parser = argparse.ArgumentParser(description='parameters setting')
@@ -15,6 +17,8 @@ def parse_args():
 	parser.add_argument('--learn_rate', default=1e-3, type=float, help='hidden tensor dimension')
 	parser.add_argument('--num_steps', default=2000, type=int, help='number of steps')
 	parser.add_argument('--print_every', default=200, type=int, help='print every n steps')
+	parser.add_argument('--name', default='dynamics', type=str, help='output name')
+	parser.add_argument('--save_dir', default=FILE_DIR, type=str, help='dir to save the trained model')
 	return parser.parse_args()
 
 def train(args):
@@ -63,3 +67,7 @@ if __name__ == "__main__":
 	args = parse_args()
 	model, stats = train(args)
 
+	# save
+	os.makedirs(args.save_dir) if not os.path.exists(args.save_dir) else None
+	path = '{}/{}.tar'.format(args.save_dir, args.name)
+	torch.save(model.state_dict(), path)
