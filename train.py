@@ -23,7 +23,9 @@ def parse_args():
 	parser.add_argument('--save_dir', default=FILE_DIR, type=str, help='dir to save the trained model')
 	return parser.parse_args()
 
+
 def train(args):
+	first_call = True
 	np.random.seed(args.seed)
 	torch.manual_seed(args.seed)
 
@@ -43,6 +45,23 @@ def train(args):
 		# train step
 		duv_hat = model.time_derivative(uv)
 		loss = L2_loss(duv, duv_hat)
+		if not args.baseline:
+			u, v = uv.split(1,1)
+			du, dv = duv_hat.split(1,1)
+
+			energy1 = (u**2 + v**2) 
+			energy2 = (du**2 + dv**2)
+			add_loss = L2_loss(energy1, energy2)
+			if first_call:
+				# print( ' u = {} '.format(u))
+				# print( ' v = {} '.format(v))
+				# print( ' du = {} '.format(du))
+				# print( ' dv = {} '.format(dv))
+				# print( ' u**2 = {} '.format(u**2))
+				# print( ' du**2 = {} '.format(du**2))
+				print( ' add_loss = {} '.format(add_loss))
+				first_call = False
+			loss += add_loss
 		loss.backward(); optim.step(); optim.zero_grad();
 
 		# run test data
