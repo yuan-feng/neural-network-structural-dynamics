@@ -16,7 +16,7 @@ def parse_args():
 	parser.add_argument('--input_dim', default=2, type=int, help='input tensor dimension')
 	parser.add_argument('--hidden_dim', default=200, type=int, help='hidden tensor dimension')
 	parser.add_argument('--learn_rate', default=1e-3, type=float, help='hidden tensor dimension')
-	parser.add_argument('--num_steps', default=2000, type=int, help='number of steps')
+	parser.add_argument('--num_steps', default=1600, type=int, help='number of steps')
 	parser.add_argument('--print_every', default=200, type=int, help='print every n steps')
 	parser.add_argument('--name', default='dynamics', type=str, help='output name')
 	parser.add_argument('--baseline', dest='baseline', action='store_true', help='run baseline or energy conserving')
@@ -52,15 +52,6 @@ def train(args):
 			energy1 = (u**2 + v**2) 
 			energy2 = (du**2 + dv**2)
 			add_loss = L2_loss(energy1, energy2)
-			if first_call:
-				# print( ' u = {} '.format(u))
-				# print( ' v = {} '.format(v))
-				# print( ' du = {} '.format(du))
-				# print( ' dv = {} '.format(dv))
-				# print( ' u**2 = {} '.format(u**2))
-				# print( ' du**2 = {} '.format(du**2))
-				print( ' add_loss = {} '.format(add_loss))
-				first_call = False
 			loss += add_loss
 		loss.backward(); optim.step(); optim.zero_grad();
 
