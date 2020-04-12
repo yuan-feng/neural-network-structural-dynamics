@@ -17,10 +17,10 @@ def get_rawdata(t_span=[0,3], num_of_split=10, u0=None, v0=None, omega=1, noise_
 	t_eval = np.linspace(t_span[0], t_span[1], int(num_of_split*t_span[1]-t_span[0]))
 
 	if u0 is None:
-		u0 = np.random.rand() * 0.9 + 0.1 
+		u0 = np.random.rand() * 1.8
 	if v0 is None:
-		# v0 = np.random.rand() * 0.9 + 0.1
-		v0 = 0
+		v0 = np.random.rand() * 1.8
+		# v0 = 0
 
 	u = np.array([ get_disp(u0, v0, t, omega) for t in t_eval ])
 	v = np.array([ get_velo(u0, v0, t, omega) for t in t_eval ])
