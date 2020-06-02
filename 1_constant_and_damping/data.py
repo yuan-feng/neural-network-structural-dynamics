@@ -13,7 +13,7 @@ def get_acce(u0, v0, t, omega):
 	acce = - u0 * omega**2 * np.cos(omega * t) - v0 * omega * np.sin( omega * t )
 	return acce
 
-def get_rawdata(t_span=[0,3], num_of_split=10, u0=None, v0=None, omega=1, noise_std=0.1):
+def get_rawdata(t_span=[0,12.56], num_of_split=10, u0=None, v0=None, omega=1, noise_std=0.1):
 	t_eval = np.linspace(t_span[0], t_span[1], int(num_of_split*t_span[1]-t_span[0]))
 
 	if u0 is None:
