@@ -105,7 +105,7 @@ plt.xlabel(" Time [second] ")
 plt.ylabel(" Displacement [meters] ")
 plt.yticks(np.arange(true_dis.min(), true_dis.max()*1.01, 0.5))
 plt.grid()
-plt.savefig( "constant_comparison_disp.jpg",bbox_inches="tight")
+plt.savefig( "sdof_constant_comparison_disp.jpg",bbox_inches="tight")
 plt.show()
 
 
@@ -124,6 +124,6 @@ plt.xlabel(" Time [second] ")
 plt.ylabel(" System Energy")
 # plt.yticks(np.arange(energy_base_nn.min(), energy_base_nn.max()*1.01, 0.1))
 plt.grid()
-plt.savefig( "constant_comparison_error.jpg",bbox_inches="tight")
+plt.savefig( "sdof_constant_comparison_energy.jpg",bbox_inches="tight")
 plt.show()
 
