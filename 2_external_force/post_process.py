@@ -125,6 +125,28 @@ plt.grid()
 plt.savefig( "sdof_external_force_comparison_disp.jpg",bbox_inches="tight")
 plt.show()
 
+# # # #############################
+base_error = abs(base_dis - true_dis)
+ecnn_error = abs(ecnn_dis - true_dis)
+
+plt.plot(base_t, base_error, color='b', label='Baseline Neural Network')
+plt.plot(base_t, ecnn_error, color='r', label='Energy Constant Neural Network')
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
+          fancybox=True, shadow=True
+          # , ncol=3
+          )
+plt.xlabel(" Time [second] ")
+plt.ylabel(" Displacement Error [meter] ")
+# plt.yticks(np.arange(energy_base_nn.min(), energy_base_nn.max()*1.01, 0.1))
+plt.grid()
+plt.savefig( "sdof_damping_comparison_error.jpg",bbox_inches="tight")
+plt.show()
+
+
+
+
+# # # #############################
+
 
 # # # #############################
 # # # #############################
