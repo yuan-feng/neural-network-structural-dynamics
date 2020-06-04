@@ -1,6 +1,6 @@
 import torch
 import os
-from data import get_dataset, get_rawdata, get_velo, get_disp
+from data import get_dataset, get_rawdata, get_velo, get_disp, get_force
 import matplotlib.pyplot as plt
 from nn_base import BaseNN
 from ecnn import ECNN
@@ -11,8 +11,8 @@ import numpy as np
 # Constants
 args_dict = {
     'seed': 0,
-    'input_dim': 2, 
-    'hidden_dim': 200,
+    'input_dim': 3, 
+    'hidden_dim': 100,
     'learn_rate': 1e-3,
     'num_steps': 2000,
     'print_every': 200,
@@ -35,25 +35,31 @@ def get_model(args, baseline):
     model.load_state_dict(torch.load(path))
     return nn_model
 
+# def get_force(p0, t, omega):
+
 # Integrate Model
-def integrate_model(model, t_span, uv0, **kwargs):
+def integrate_model(model, t_span, p0, omega, uv0, **kwargs):
     damping = kwargs.pop('damping', 0)
     def fun(t, uv_in):
         scale = np.exp( - t * damping)
-        uv = torch.tensor( uv_in, requires_grad=True, dtype=torch.float32 ).view(1,2)
-        duv = model.forward(uv).data.numpy().reshape(-1)
+        f = get_force(p0, t, omega)
+        uvf_in = np.append(uv_in, f)
+        uvf = torch.tensor( uvf_in, requires_grad=True, dtype=torch.float32 ).view(1,3)
+        duv = model.forward(uvf).data.numpy().reshape(-1)
         duv[0] = duv[0] * scale
         return duv
     return solve_ivp(fun=fun, t_span=t_span, y0=uv0, **kwargs)
 
 # Analysis
 base_model = get_model(args, True)
-ecnn_model = get_model(args, False)
+# ecnn_model = get_model(args, False)
 t_span = [0,30]
 uv0 = np.array([0., 0.])
-kwargs = {'t_eval': np.linspace(t_span[0], t_span[1], 2000), 'rtol': 1e-12, 'damping':0.01}
-base_ivp = integrate_model( base_model, t_span, uv0, **kwargs )
-ecnn_ivp = integrate_model( ecnn_model, t_span, uv0, **kwargs )
+p0 = 1
+omega = 2 
+kwargs = {'t_eval': np.linspace(t_span[0], t_span[1], 2000), 'rtol': 1e-12, 'damping':0.0}
+base_ivp = integrate_model( base_model, t_span, p0, omega, uv0, **kwargs )
+# ecnn_ivp = integrate_model( ecnn_model, t_span, p0, omega, uv0, **kwargs )
 
 LINE_SEGMENTS = 10
 base_dis = []
@@ -62,13 +68,12 @@ for i, l in enumerate(np.split(base_ivp['y'].T, LINE_SEGMENTS)):
     base_dis = np.concatenate((base_dis, l[:,0]))
     base_vel = np.concatenate((base_vel, l[:,1]))
 
-fig = plt.figure()
-LINE_SEGMENTS = 10
-ecnn_dis = []
-ecnn_vel = []
-for i, l in enumerate(np.split(ecnn_ivp['y'].T, LINE_SEGMENTS)):
-    ecnn_dis = np.concatenate((ecnn_dis, l[:,0]))
-    ecnn_vel = np.concatenate((ecnn_vel, l[:,1]))
+# fig = plt.figure()
+# ecnn_dis = []
+# ecnn_vel = []
+# for i, l in enumerate(np.split(ecnn_ivp['y'].T, LINE_SEGMENTS)):
+#     ecnn_dis = np.concatenate((ecnn_dis, l[:,0]))
+#     ecnn_vel = np.concatenate((ecnn_vel, l[:,1]))
 
 
 # groundtruth

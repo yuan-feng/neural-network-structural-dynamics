@@ -27,6 +27,10 @@ def get_acce(p0, k, t, omega, omega_n):
 		) 
 	return acce
 
+def get_force(p0, t, omega):
+	force = p0 * np.sin(omega*t)
+	return force
+
 def get_rawdata(t_span=[0,12.56], num_of_split=10, p0=None, k=1, omega=2, omega_n=1, noise_std=0.1):
 	t_eval = np.linspace(t_span[0], t_span[1], int(num_of_split*t_span[1]-t_span[0]))
 
@@ -37,29 +41,29 @@ def get_rawdata(t_span=[0,12.56], num_of_split=10, p0=None, k=1, omega=2, omega_
 	v = np.array([ get_velo(p0, k, t, omega, omega_n) for t in t_eval ])
 	dudt = np.array([ get_velo(p0, k, t, omega, omega_n) for t in t_eval ])
 	dvdt = np.array([ get_acce(p0, k, t, omega, omega_n) for t in t_eval ])
-
+	f = np.array([ get_force(p0, t, omega) for t in t_eval ])
 
 	u += np.random.randn(*u.shape) * noise_std
 	v += np.random.randn(*v.shape) * noise_std
-	return u, v, dudt, dvdt, t_eval
+	return u, v, f, dudt, dvdt, t_eval
 
 def get_dataset(seed=0, samples=50, test_split=0.5, **kwargs):
 	data = {'meta': locals()}
 
 	np.random.seed(seed)
-	uv = []
+	uvf = []
 	duv = []
 	for idx in range(samples):
-		u, v, dudt, dvdt, t = get_rawdata(**kwargs)
-		uv.append( np.stack( [u,v] ).T )
+		u, v, f, dudt, dvdt, t = get_rawdata(**kwargs)
+		uvf.append( np.stack( [u,v,f] ).T )
 		duv.append( np.stack( [dudt,dvdt] ).T )
 
-	data['uv'] = np.concatenate(uv)
+	data['uvf'] = np.concatenate(uvf)
 	data['duv'] = np.concatenate(duv)
 
-	split_idx = int(len(data['uv']) * test_split ) 
+	split_idx = int(len(data['uvf']) * test_split ) 
 	split_data = {}
-	for d in ['uv', 'duv']:
+	for d in ['uvf', 'duv']:
 		split_data[d], split_data['test_' + d] = data[d][:split_idx], data[d][split_idx:]
 	data = split_data
 	return data
@@ -68,10 +72,10 @@ def get_dataset(seed=0, samples=50, test_split=0.5, **kwargs):
 def plot_dataset(**kwargs):
 	dataset = get_dataset(**kwargs)
 	import matplotlib.pyplot as plt
-	uv = dataset['uv']
+	uvf = dataset['uvf']
 	duv = dataset['duv']
 	print(' plot u, v ... ')
-	plt.scatter(uv[:,0],uv[:,1])
+	plt.scatter(uvf[:,0],uvf[:,1])
 	plt.show()
 
 	print(' plot dudt, dvdt ... ')
