@@ -34,7 +34,7 @@ def get_force(p0, t, omega):
 def get_energy_input(p0, k, t, omega, omega_n, tol = 1e-6):
 	energy_input, error = integrate.quad(lambda x: 
 		get_force(p0, t, omega) * get_velo(p0, k, t, omega, omega_n), 
-		0, t
+		t - np.pi*2/omega , t
 		)
 	if abs(error) > tol:
 		print("integrate error [{}] greater than tol!".format(error))
