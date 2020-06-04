@@ -1,31 +1,42 @@
 import numpy as np 
 
+def get_omega_d(omega, damping_ratio):
+	return omega * np.sqrt(1 - damping_ratio**2)
 
-def get_disp(u0, v0, t, omega):
-	disp = u0 * np.cos(omega * t) + v0 / omega * np.sin( omega * t )
+def get_disp(u0, damping, t, omega):
+	omega_d = get_omega_d(omega, damping)
+	disp = np.exp(-damping*omega*t) * u0 * np.cos(omega_d * t)
 	return disp
 
-def get_velo(u0, v0, t, omega):
-	velo = - u0 * omega * np.sin(omega * t) + v0 * np.cos( omega * t )
+def get_velo(u0, damping, t, omega):
+	omega_d = get_omega_d(omega, damping)
+	velo = - np.exp(-damping*omega*t) * u0 * ( 
+				damping * omega * np.cos(omega_d * t) 
+			+ omega_d * np.sin(omega_d * t) 
+			)
 	return velo
 
-def get_acce(u0, v0, t, omega):
-	acce = - u0 * omega**2 * np.cos(omega * t) - v0 * omega * np.sin( omega * t )
+def get_acce(u0, damping, t, omega):
+	omega_d = get_omega_d(omega, damping)
+	acce = np.exp(-damping*omega*t) * u0 * ( 
+			   (damping**2 * omega**2 - omega_d**2) * np.cos(omega_d * t)
+			 + 2 * damping * omega * omega_d * np.sin(omega_d * t) 
+			)
 	return acce
 
-def get_rawdata(t_span=[0,12.56], num_of_split=10, u0=None, v0=None, omega=1, noise_std=0.1):
+def get_rawdata(t_span=[0,12.56], num_of_split=10, u0=None, damping=None, omega=1, noise_std=0.1):
 	t_eval = np.linspace(t_span[0], t_span[1], int(num_of_split*t_span[1]-t_span[0]))
 
 	if u0 is None:
 		u0 = np.random.rand() * 1.8
-	if v0 is None:
-		v0 = np.random.rand() * 1.8
-		# v0 = 0
+	if damping is None:
+		# damping = np.random.rand() * 1.8
+		damping = 0.1
 
-	u = np.array([ get_disp(u0, v0, t, omega) for t in t_eval ])
-	v = np.array([ get_velo(u0, v0, t, omega) for t in t_eval ])
-	dudt = np.array([ get_velo(u0, v0, t, omega) for t in t_eval ])
-	dvdt = np.array([ get_acce(u0, v0, t, omega) for t in t_eval ])
+	u = np.array([ get_disp(u0, damping, t, omega) for t in t_eval ])
+	v = np.array([ get_velo(u0, damping, t, omega) for t in t_eval ])
+	dudt = np.array([ get_velo(u0, damping, t, omega) for t in t_eval ])
+	dvdt = np.array([ get_acce(u0, damping, t, omega) for t in t_eval ])
 
 
 
