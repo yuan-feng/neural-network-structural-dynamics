@@ -1,32 +1,42 @@
+
 import numpy as np 
 
 
-def get_disp(u0, v0, t, omega):
-	disp = u0 * np.cos(omega * t) + v0 / omega * np.sin( omega * t )
+def get_disp(p0, k, t, omega, omega_n):
+	"""
+	p0     : force amplitude
+	k      : stiffness of the system
+	t      : time 
+	omega  : frequency of the force p0
+	omage_n: natural frequency of the system
+	"""
+	disp = p0 / k / ( 1 - (omega/omega_n)**2) * ( 
+		np.sin(omega*t) - omega/omega_n * np.sin(omega_n * t)
+		) 
 	return disp
 
-def get_velo(u0, v0, t, omega):
-	velo = - u0 * omega * np.sin(omega * t) + v0 * np.cos( omega * t )
+def get_velo(p0, k, t, omega, omega_n):
+	velo = p0 / k * omega / ( 1 - (omega/omega_n)**2) * ( 
+		np.cos(omega*t) - np.cos(omega_n * t)
+		) 
 	return velo
 
-def get_acce(u0, v0, t, omega):
-	acce = - u0 * omega**2 * np.cos(omega * t) - v0 * omega * np.sin( omega * t )
+def get_acce(p0, k, t, omega, omega_n):
+	acce = p0 / k * omega / ( 1 - (omega/omega_n)**2) * ( 
+		- omega * np.sin(omega*t) + omega_n * np.sin(omega_n * t)
+		) 
 	return acce
 
-def get_rawdata(t_span=[0,12.56], num_of_split=10, u0=None, v0=None, omega=1, noise_std=0.1):
+def get_rawdata(t_span=[0,12.56], num_of_split=10, p0=None, k=1, omega=2, omega_n=1, noise_std=0.1):
 	t_eval = np.linspace(t_span[0], t_span[1], int(num_of_split*t_span[1]-t_span[0]))
 
-	if u0 is None:
-		u0 = np.random.rand() * 1.8
-	if v0 is None:
-		v0 = np.random.rand() * 1.8
-		# v0 = 0
+	if p0 is None:
+		p0 = np.random.rand() * 1.8
 
-	u = np.array([ get_disp(u0, v0, t, omega) for t in t_eval ])
-	v = np.array([ get_velo(u0, v0, t, omega) for t in t_eval ])
-	dudt = np.array([ get_velo(u0, v0, t, omega) for t in t_eval ])
-	dvdt = np.array([ get_acce(u0, v0, t, omega) for t in t_eval ])
-
+	u = np.array([ get_disp(p0, k, t, omega, omega_n) for t in t_eval ])
+	v = np.array([ get_velo(p0, k, t, omega, omega_n) for t in t_eval ])
+	dudt = np.array([ get_velo(p0, k, t, omega, omega_n) for t in t_eval ])
+	dvdt = np.array([ get_acce(p0, k, t, omega, omega_n) for t in t_eval ])
 
 
 	u += np.random.randn(*u.shape) * noise_std

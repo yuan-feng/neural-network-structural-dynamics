@@ -16,7 +16,7 @@ def parse_args():
 	parser.add_argument('--input_dim', default=2, type=int, help='input tensor dimension')
 	parser.add_argument('--hidden_dim', default=200, type=int, help='hidden tensor dimension')
 	parser.add_argument('--learn_rate', default=1e-3, type=float, help='hidden tensor dimension')
-	parser.add_argument('--num_steps', default=1600, type=int, help='number of steps')
+	parser.add_argument('--num_steps', default=10000, type=int, help='number of steps')
 	parser.add_argument('--print_every', default=200, type=int, help='print every n steps')
 	parser.add_argument('--name', default='dynamics', type=str, help='output name')
 	parser.add_argument('--baseline', dest='baseline', action='store_true', help='run baseline or energy conserving')
