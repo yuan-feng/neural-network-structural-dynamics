@@ -30,10 +30,10 @@ def train(args):
 	torch.manual_seed(args.seed)
 
 	output_dim = 2 
-	nn_model = BaseNN(args.input_dim, args.hidden_dim, output_dim)
-	model = ECNN(args.input_dim, nn_model, args.baseline )
+	nn_model = BaseNN(args.input_dim, args.hidden_dim, output_dim, args.baseline)
+	model = ECNN(nn_model, args.baseline )
 	optim = torch.optim.Adam(model.parameters(), args.learn_rate, weight_decay=1e-4)
-	data = get_dataset(seed=args.seed)
+	data = get_dataset(baseline=args.baseline, seed=args.seed)
 
 	uvf = torch.tensor(data['uvf'], requires_grad=True, dtype=torch.float32 )
 	test_uvf = torch.tensor(data['test_uvf'], requires_grad=True, dtype=torch.float32 )
