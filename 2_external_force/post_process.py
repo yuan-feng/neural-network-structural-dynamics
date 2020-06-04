@@ -139,7 +139,7 @@ plt.xlabel(" Time [second] ")
 plt.ylabel(" Displacement Error [meter] ")
 # plt.yticks(np.arange(energy_base_nn.min(), energy_base_nn.max()*1.01, 0.1))
 plt.grid()
-plt.savefig( "sdof_damping_comparison_error.jpg",bbox_inches="tight")
+plt.savefig( "sdof_external_force_comparison_error.jpg",bbox_inches="tight")
 plt.show()
 
 
