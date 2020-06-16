@@ -44,8 +44,8 @@ def get_dataset(seed=0, samples=50, test_split=0.5, **kwargs):
 		uv.append( np.stack( [u,v] ).T )
 		duv.append( np.stack( [dudt,dvdt] ).T )
 
-	data['uv'] = np.concatenate(uv)
-	data['duv'] = np.concatenate(duv)
+	data['ua'] = np.concatenate(uv)
+	data['a'] = np.concatenate(duv)
 
 	split_idx = int(len(data['uv']) * test_split ) 
 	split_data = {}
