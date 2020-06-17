@@ -3,7 +3,8 @@ import numpy as np
 
 from nn_base import BaseNN
 from ecnn import ECNN
-from data import get_dataset
+# from data import get_dataset
+from rawdata import getData
 from util import L2_loss
 import argparse
 import os 
@@ -13,7 +14,7 @@ FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 def parse_args():
 	parser = argparse.ArgumentParser(description='parameters setting')
 	parser.add_argument('--seed', default=0, type=int, help='seed for random number')
-	parser.add_argument('--input_dim', default=2, type=int, help='input tensor dimension')
+	parser.add_argument('--input_dim', default=4, type=int, help='input tensor dimension')
 	parser.add_argument('--hidden_dim', default=200, type=int, help='hidden tensor dimension')
 	parser.add_argument('--learn_rate', default=1e-3, type=float, help='hidden tensor dimension')
 	parser.add_argument('--num_steps', default=1600, type=int, help='number of steps')
@@ -33,31 +34,26 @@ def train(args):
 	nn_model = BaseNN(args.input_dim, args.hidden_dim, output_dim)
 	model = ECNN(args.input_dim, nn_model, args.baseline )
 	optim = torch.optim.Adam(model.parameters(), args.learn_rate, weight_decay=1e-4)
-	data = get_dataset(seed=args.seed)
+	data = getData()
 
-	uv = torch.tensor(data['uv'], requires_grad=True, dtype=torch.float32 )
-	test_uv = torch.tensor(data['test_uv'], requires_grad=True, dtype=torch.float32 )
-	duv = torch.Tensor(data['duv'])
-	test_duv = torch.Tensor(data['test_duv'])
+	favd = torch.tensor(data['favd'], requires_grad=True, dtype=torch.float32 )
+	test_favd = torch.tensor(data['test_favd'], requires_grad=True, dtype=torch.float32 )
+	ad = torch.Tensor(data['ad'])
+	test_ad = torch.Tensor(data['test_ad'])
 
 	stats = {'train_loss': [], 'test_loss': []}
 	for step in range(args.num_steps + 1):
 		# train step
-		duv_hat = model.time_derivative(uv)
-		loss = L2_loss(duv, duv_hat)
-		if not args.baseline:
-			u, v = uv.split(1,1)
-			du, dv = duv_hat.split(1,1)
+		ad_hat = model.time_derivative(favd)
+		loss = L2_loss(ad, ad_hat)
 
-			energy1 = (u**2 + v**2) 
-			energy2 = (du**2 + dv**2)
-			add_loss = L2_loss(energy1, energy2)
-			loss += add_loss
 		loss.backward(); optim.step(); optim.zero_grad();
 
 		# run test data
-		test_duv_hat = model.time_derivative(test_uv)
-		test_loss = L2_loss(test_duv, test_duv_hat)
+		test_ad_hat = model.time_derivative(test_favd)
+		# print('test_ad_hat:size = {}'.format(test_ad_hat.size()) )
+		# print('test_ad:size = {}'.format(test_ad.size()) )
+		test_loss = L2_loss(test_ad, test_ad_hat)
 
 		# logging
 		stats['train_loss'].append(loss.item())
@@ -65,10 +61,10 @@ def train(args):
 		if step % args.print_every == 0:
 			print("step {}, train_loss {:.4e}, test_loss {:.4e}".format(step, loss.item(), test_loss.item()))
 	
-	train_duv_hat = model.time_derivative(uv)
-	train_dist = (duv - train_duv_hat)**2
-	test_duv_hat = model.time_derivative(test_uv)
-	test_dist = (test_duv - test_duv_hat)**2
+	train_ad_hat = model.time_derivative(favd)
+	train_dist = (ad - train_ad_hat)**2
+	test_ad_hat = model.time_derivative(test_favd)
+	test_dist = (test_ad - test_ad_hat)**2
 	print('Final train loss {:.4e} +/- {:.4e}\nFinal test loss {:.4e} +/- {:.4e}'
 		.format(train_dist.mean().item(), train_dist.std().item()/np.sqrt(train_dist.shape[0]),
 			test_dist.mean().item(), test_dist.std().item()/np.sqrt(test_dist.shape[0])))
