@@ -3,7 +3,8 @@ import numpy as np
 max_len = 76 
 data_len = 20
 def getInputAccVelDis():
-	acc, vel, dis,frq = [], [], [], []
+	# ene -> energy
+	acc, vel, dis,frq, ene = [], [], [], [], []
 	for i in range(1,data_len):
 		w = 2 * i + 1
 		acc_filename = 'processed_data/acc_{}_acce_freq_ampl.txt'.format(w)
@@ -16,15 +17,18 @@ def getInputAccVelDis():
 		acc.append(acc_d[:,1])
 		vel.append(vel_d[:,1])
 		dis.append(dis_d[:,1])
+		ene.append(vel_d[:,1]*acc_d[:,1])
 	print(' len(frq), len(frq[0]), len(frq[data_len-2]) = {}, {}, {} '.format( len(frq), len(frq[0]), len(frq[data_len-2]) ))
 	print(' len(acc), len(acc[0]), len(acc[data_len-2]) = {}, {}, {} '.format( len(acc), len(acc[0]), len(acc[data_len-2]) ))
 	print(' len(vel), len(vel[0]), len(vel[data_len-2]) = {}, {}, {} '.format( len(vel), len(vel[0]), len(vel[data_len-2]) ))
 	print(' len(dis), len(dis[0]), len(dis[data_len-2]) = {}, {}, {} '.format( len(dis), len(dis[0]), len(dis[data_len-2]) ))
+	print(' len(ene), len(ene[0]), len(ene[data_len-2]) = {}, {}, {} '.format( len(ene), len(ene[0]), len(ene[data_len-2]) ))
 	data = {}
 	data['frq'] = frq
 	data['acc'] = acc
 	data['vel'] = vel
 	data['dis'] = dis
+	data['ene'] = ene
 	return data
 
 # inputdata = getInputAccVelDis()
@@ -45,7 +49,7 @@ def getOutputAccDis():
 
 # outputdata = getOutputAccDis()
 
-def getData():
+def getData(baseline=False):
 	inputdata = getInputAccVelDis()
 	outputdata = getOutputAccDis()
 	data = {}
@@ -60,8 +64,12 @@ def getData():
 		a = inputdata['acc'][i]
 		v = inputdata['vel'][i]
 		d = inputdata['dis'][i]
+		e = inputdata['ene'][i]
 		# print('len(f) = {}'.format(len(f)))
-		favd.append( np.stack([f,a,v,d]).T )
+		if not baseline:
+			favd.append( np.stack([f,a,v,d,e]).T )
+		else:
+			favd.append( np.stack([f,a,v,d]).T )
 		a_out = outputdata['acc'][i][:len(a)]
 		d_out = outputdata['dis'][i][:len(d)]
 		ad.append( np.stack([a_out,d_out]).T )

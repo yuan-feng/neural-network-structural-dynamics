@@ -31,10 +31,10 @@ def train(args):
 	torch.manual_seed(args.seed)
 
 	output_dim = 2 
-	nn_model = BaseNN(args.input_dim, args.hidden_dim, output_dim)
-	model = ECNN(args.input_dim, nn_model, args.baseline )
+	nn_model = BaseNN(args.input_dim, args.hidden_dim, output_dim, args.baseline)
+	model = ECNN(nn_model, args.baseline )
 	optim = torch.optim.Adam(model.parameters(), args.learn_rate, weight_decay=1e-4)
-	data = getData()
+	data = getData(baseline=args.baseline)
 
 	favd = torch.tensor(data['favd'], requires_grad=True, dtype=torch.float32 )
 	test_favd = torch.tensor(data['test_favd'], requires_grad=True, dtype=torch.float32 )
