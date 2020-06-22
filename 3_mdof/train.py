@@ -4,7 +4,8 @@ import numpy as np
 from nn_base import BaseNN
 from ecnn import ECNN
 # from data import get_dataset
-from rawdata import getData
+# from rawdata import getData
+from rawdata2 import getData
 from util import L2_loss
 import argparse
 import os 
@@ -41,6 +42,9 @@ def train(args):
 	ad = torch.Tensor(data['ad'])
 	test_ad = torch.Tensor(data['test_ad'])
 
+	print('favd:size = {}'.format(favd.size()) )
+	print('ad:size = {}'.format(ad.size()) )
+	
 	stats = {'train_loss': [], 'test_loss': []}
 	for step in range(args.num_steps + 1):
 		# train step
