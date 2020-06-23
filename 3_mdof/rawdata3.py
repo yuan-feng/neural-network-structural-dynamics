@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 damping_len = 6
 def getInputAccVelDis():
 	# ene -> energy
@@ -45,7 +45,7 @@ def getOutputAccDis():
 
 # outputdata = getOutputAccDis()
 omega_n = 3.473873
-def getData(baseline=False, min_frq = 0.1, max_frq = 30):
+def getData(baseline=False, min_frq = 0.01, max_frq = 30):
 	inputdata = getInputAccVelDis()
 	outputdata = getOutputAccDis()
 	data = {}
@@ -55,6 +55,7 @@ def getData(baseline=False, min_frq = 0.1, max_frq = 30):
 	# output
 	# a, d = acc, dis
 	ad = []
+	# first = True
 	for i in range( len(inputdata['acc'])  ):
 		# sz = min(len(inputdata['frq'][i]), len(outputdata['acc'][i]))
 		frq = f = inputdata['frq'][i]
@@ -69,9 +70,14 @@ def getData(baseline=False, min_frq = 0.1, max_frq = 30):
 			a_out = outputdata['acc'][ i * damping_len + j ][l:r]
 			d_out = outputdata['dis'][ i * damping_len + j ][l:r]
 			damping = 0.5 + 0.06 * j 
-			Rd = 1.0 / np.sqrt((1-omega**2)**2 + (2*damping*omega)**2)
+			Ra = omega**2 / np.sqrt((1-omega**2)**2 + (2*damping*omega)**2) 
+			Rd = 1 / np.sqrt((1-omega**2)**2 + (2*damping*omega)**2) 
+			# if first:
+			# 	first=False
+			# 	plt.plot(f, Rd)
+			# 	plt.show()
 			if not baseline:
-				favd.append( np.stack([f,a,v,d,Rd]).T )
+				favd.append( np.stack([f,a,v,d,Ra,Rd]).T )
 			else:
 				favd.append( np.stack([f,a,v,d]).T )
 			ad.append( np.stack([a_out,d_out]).T )
