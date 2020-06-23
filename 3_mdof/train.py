@@ -2,10 +2,11 @@ import torch
 import numpy as np
 
 from nn_base import BaseNN
+# from nn_base2 import BaseNN
 from ecnn import ECNN
 # from data import get_dataset
 # from rawdata import getData
-from rawdata2 import getData
+from rawdata3 import getData
 from util import L2_loss
 import argparse
 import os 
@@ -18,7 +19,7 @@ def parse_args():
 	parser.add_argument('--input_dim', default=4, type=int, help='input tensor dimension')
 	parser.add_argument('--hidden_dim', default=200, type=int, help='hidden tensor dimension')
 	parser.add_argument('--learn_rate', default=1e-3, type=float, help='hidden tensor dimension')
-	parser.add_argument('--num_steps', default=1600, type=int, help='number of steps')
+	parser.add_argument('--num_steps', default=3000, type=int, help='number of steps')
 	parser.add_argument('--print_every', default=200, type=int, help='print every n steps')
 	parser.add_argument('--name', default='dynamics', type=str, help='output name')
 	parser.add_argument('--baseline', dest='baseline', action='store_true', help='run baseline or energy conserving')

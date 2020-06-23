@@ -39,7 +39,7 @@ def getOutputAccDis():
 	for i in range(1,data_len+1):
 		for j in range(1, damp_len+1):
 			acc_filename = 'processed_data2/shell_structure_{}_{}_imposed_motion_node_38_x_acce_freq_ampl.txt'.format(i,j)
-			dis_filename = 'processed_data2/shell_structure_{}_{}_imposed_motion_node_38_x_acce_freq_ampl.txt'.format(i,j)
+			dis_filename = 'processed_data2/shell_structure_{}_{}_imposed_motion_node_38_x_disp_freq_ampl.txt'.format(i,j)
 			acc.append(np.loadtxt(acc_filename)[:,1])
 			dis.append(np.loadtxt(dis_filename)[:,1])
 	print(' len(acc), len(acc[0]), len(acc[data_len-2]) = {}, {}, {} '.format( len(acc), len(acc[0]), len(acc[data_len-2]) ))

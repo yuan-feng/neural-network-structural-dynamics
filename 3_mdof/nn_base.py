@@ -7,7 +7,7 @@ class BaseNN(torch.nn.Module):
 			input_dim = input_dim + 1
 		self.linear1 = torch.nn.Linear(input_dim, hidden_dim)
 		self.linear2 = torch.nn.Linear(hidden_dim, hidden_dim)
-		self.linear3 = torch.nn.Linear(hidden_dim, output_dim, bias=False)
+		self.linear3 = torch.nn.Linear(hidden_dim, output_dim)
 		for layer in [self.linear1, self.linear2, self.linear3]:
 			torch.nn.init.orthogonal_(layer.weight)
 		self.activation = torch.tanh
