@@ -44,8 +44,8 @@ def getOutputAccDis():
 	return data
 
 # outputdata = getOutputAccDis()
-omega_n = 3.473873
 def getData(baseline=False, min_frq = 0.01, max_frq = 30):
+	omega_n = 3.473873
 	inputdata = getInputAccVelDis()
 	outputdata = getOutputAccDis()
 	data = {}

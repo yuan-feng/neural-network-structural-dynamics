@@ -35,8 +35,6 @@ def get_model(args, baseline):
     model.load_state_dict(torch.load(path))
     return nn_model
 
-# def get_force(p0, t, omega):
-
 # Integrate Model
 def integrate_model(model, t_span, p0, k, omega, omega_n, uv0, baseline, **kwargs):
     damping = kwargs.pop('damping', 0)
@@ -75,7 +73,6 @@ for i, l in enumerate(np.split(base_ivp['y'].T, LINE_SEGMENTS)):
     base_dis = np.concatenate((base_dis, l[:,0]))
     base_vel = np.concatenate((base_vel, l[:,1]))
 
-# fig = plt.figure()
 ecnn_dis = []
 ecnn_vel = []
 for i, l in enumerate(np.split(ecnn_ivp['y'].T, LINE_SEGMENTS)):
@@ -88,11 +85,9 @@ base_t = np.linspace(0, t_span[1], len(base_dis))
 omage = 1
 p0 = 1 
 k = 1
-# t = np.linspace(0, 30, 1000)
 omega = 2
 omega_n = 1
 
-# true_v = get_velo(u0, v0, base_t, omage)
 damp = kwargs['damping']
 damp = 0.1
 true_dis = get_disp(p0, k, base_t, omega, omega_n)
@@ -145,88 +140,4 @@ plt.show()
 
 
 
-# # # #############################
-
-
-# # # #############################
-# # # #############################
-# # energy_base_nn = base_dis**2 + base_vel**2
-# # energy_ecnn = ecnn_dis**2 + ecnn_vel**2
-
-# # plt.plot(base_t, energy_base_nn, color='b', label='Baseline Neural Network')
-# # plt.plot(base_t, energy_ecnn, color='r', label='Energy Constant Neural Network')
-# # plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
-# #           fancybox=True, shadow=True
-# #           # , ncol=3
-# #           )
-# # plt.xlabel(" Time [second] ")
-# # plt.ylabel(" System Energy")
-# # # plt.yticks(np.arange(energy_base_nn.min(), energy_base_nn.max()*1.01, 0.1))
-# # plt.grid()
-# # plt.savefig( "sdof_damping_comparison_energy.jpg",bbox_inches="tight")
-# # plt.show()
-
-# def getPeaks(dis):
-#   peaks = []
-#   n_steps = len(dis)
-#   for i in range(n_steps-2):
-#     if (dis[i+1] - dis[i]) * (dis[i+1]-dis[i+2]) > 0:
-#       peaks.append(i+1)
-#   return peaks
-
-
-
-# def getLag(true_dis, calc_dis):
-#   true_peaks = getPeaks(true_dis)
-#   calc_peaks = getPeaks(calc_dis)
-#   l = min(len(true_peaks), len(calc_peaks))
-#   lags = []
-#   steps = []
-#   for i in range(l):
-#     lags.append(calc_peaks[i] - true_peaks[i])
-#     steps.append(calc_peaks[i])
-#   steps = np.array(steps) / len(base_dis) * t_span[1]
-#   lags = np.array(lags) / len(base_dis) * t_span[1]
-#   return lags, steps
-
-# base_lags, base_steps = getLag(true_dis, base_dis)
-# ecnn_lags, ecnn_steps = getLag(true_dis, ecnn_dis)
-
-# print('base_steps = {}'.format(base_steps))
-# print('base_lags = {}'.format(base_lags))
-# print('\n')
-# print('ecnn_steps = {}'.format(ecnn_steps))
-# print('ecnn_lags = {}'.format(ecnn_lags))
-
-# plt.xlabel(" Time [second] ")
-# plt.ylabel(" Lag [second] ")
-# plt.plot(base_steps, base_lags, color='b', label='Baseline Neural Network')
-# plt.plot(ecnn_steps, ecnn_lags, color='r', label='Energy Constant Neural Network')
-# plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
-#           fancybox=True, shadow=True
-#           # , ncol=3
-#           )
-# plt.xticks(np.arange(0, 31, 5))
-# plt.grid()
-# plt.savefig( "sdof_damping_comparison_lag.jpg",bbox_inches="tight")
-# plt.show()
-
-
-# # def getLag(base_t, true_dis, calc_dis):
-# #   n_steps = len(true_dis)
-# #   lag = np.zeros(n_steps)
-# #   for i in range(1,n_steps):
-# #     lag[i] = i
-# #     val = calc_dis[i]
-# #     for j in range(i):
-# #       if (val - true_dis[j]) * (val - true_dis[j+1]) < 0:
-# #         lag[i] = i-j
-# #         break
-# #   return lag
-
-# # base_lag = getLag(base_t, true_dis, base_dis)
-# # ecnn_lag = getLag(base_t, true_dis, ecnn_dis)
-# # plt.plot(base_t, base_lag)
-# # plt.plot(base_t, ecnn_lag)
-# # plt.show()
 
