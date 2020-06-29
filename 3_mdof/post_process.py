@@ -103,7 +103,7 @@ pylab.rcParams.update(params)
 
 # #############################
 f, (ax1) = plt.subplots(1, 1)
-plt.semilogx(true_frq, true_acc, label='acc')
+plt.semilogx(true_frq, true_acc, label='groundtruth')
 plt.semilogx(true_frq, nn_acc, label='nn')
 plt.semilogx(true_frq, ecnn_acc, label='ecnn')
 plotFreq_min = 0.1
@@ -147,6 +147,7 @@ plt.show()
 
 
 f, (ax1) = plt.subplots(1, 1)
+plt.semilogx(true_frq, true_dis, label='groundtruth')
 plt.semilogx(true_frq, nn_dis, label='nn')
 plt.semilogx(true_frq, ecnn_dis, label='ecnn')
 plotFreq_min = 0.1
